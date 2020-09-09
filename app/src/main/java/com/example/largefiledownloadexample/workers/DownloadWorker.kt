@@ -6,7 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.example.largefiledownloadexample.DownloadUtil
+import com.example.largefiledownloadexample.utils.DownloadUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -32,7 +32,7 @@ class DownloadWorker(appContext: Context, workerParameters: WorkerParameters) :
                 Result.failure(workDataOf("Error" to "File not created"))
             }
             withContext(Dispatchers.IO) {
-                DownloadUtil.downloadFile(url, outputFile, Pair(rangeFrom, rangeTo))
+                DownloadUtils.downloadFile(url, outputFile, Pair(rangeFrom, rangeTo))
             }
 
            return Result.success()

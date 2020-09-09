@@ -1,6 +1,8 @@
 package com.example.largefiledownloadexample
 
 import android.Manifest
+import android.app.DownloadManager
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
@@ -27,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        supportActionBar?.hide()
         viewModel = ViewModelProvider(this).get(DownloadViewModel::class.java)
         if (allPermissionsGranted()) {
             setup()
@@ -64,13 +67,12 @@ class MainActivity : AppCompatActivity() {
     private fun setup() {
 
         viewModel.outputWorkInfos.observe(this) { workInfoList ->
-            val list = workInfoList.filter { it.id.toString() in viewModel.chunkWorkIds.value!! }
-            val finished = list.filter {
-                    it.state == WorkInfo.State.SUCCEEDED }.size
-            val progress = (finished.toDouble() / list.size) * 100
-            progressBar.progress = progress.toInt()
-            if (progress >= 100)
-                finished()
+            val list = getCurrentWorkInfos(workInfoList)
+            updateUI(checkTasksAreRunning(workInfoList))
+            val finished = getFinishedTasks(list)
+            val progress = updateProgress(finished, list)
+            onTaskFailed(list)
+            onSuccess(progress)
         }
 
 
@@ -78,7 +80,7 @@ class MainActivity : AppCompatActivity() {
             if (urlInput.text.isEmpty()) return@setOnClickListener
             if (isDownloading) {
                 viewModel.cancelDownload()
-                resetUI()
+                updateUI()
                 return@setOnClickListener
             }
             viewModel.startDownload(urlInput.text.toString())
@@ -89,15 +91,53 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun resetUI() {
-        isDownloading = false
-        progressBar.visibility = View.INVISIBLE
-        progressBar.progress = 0
-        downloadButton.text = "Download"
+    private fun onSuccess(progress: Double) {
+        if (progress >= 100)
+            finished()
+    }
+
+    private fun onTaskFailed(list: List<WorkInfo>) {
+        if (list.any { it.state == WorkInfo.State.FAILED }) {
+            viewModel.cancelDownload()
+            Toast.makeText(this@MainActivity, getString(R.string.downloadFailed), Toast.LENGTH_LONG)
+                .show()
+            updateUI()
+        }
+    }
+
+    private fun updateProgress(
+        finished: List<WorkInfo>,
+        list: List<WorkInfo>
+    ): Double {
+        val progress = (finished.size.toDouble() / list.size) * 100
+        progressBar.progress = progress.toInt()
+        progressText.text = progress.toInt().toString() + "%"
+        return progress
+    }
+
+    private fun getFinishedTasks(list: List<WorkInfo>) = list.filter {
+        it.state == WorkInfo.State.SUCCEEDED
+    }
+
+    private fun checkTasksAreRunning(workInfoList: List<WorkInfo>) =
+        workInfoList.any { it.state == WorkInfo.State.RUNNING || it.state == WorkInfo.State.ENQUEUED }
+
+    private fun getCurrentWorkInfos(workInfoList: List<WorkInfo>) =
+        workInfoList.filter { it.id.toString() in viewModel.chunkWorkIds.value!! }
+
+    private fun updateUI(_isDownloading: Boolean = false) {
+        isDownloading = _isDownloading
+        urlInput.visibility = if(isDownloading) View.GONE else View.VISIBLE
+        progressBar.visibility = if(isDownloading) View.VISIBLE  else View.INVISIBLE
+        progressText.visibility = if(isDownloading) View.VISIBLE  else View.INVISIBLE
+        if(!isDownloading) progressBar.progress = 0
+        downloadButton.text = if(isDownloading) getString(R.string.cancel) else getString(R.string.download)
     }
 
     private fun finished() {
-        resetUI()
+        Toast.makeText(this@MainActivity, getString(R.string.downloadSuccess), Toast.LENGTH_LONG).show()
+        startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+        updateUI()
     }
 
 }

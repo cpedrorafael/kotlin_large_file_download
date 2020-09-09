@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Large File Download Example</string>
     <string name="cancel">Cancel</string>
+    <string name="download">Download</string>
+    <string name="downloadSuccess">The download was completed successfully!</string>
+    <string name="downloadFailed">The download could not be completed.</string>
 </resources>

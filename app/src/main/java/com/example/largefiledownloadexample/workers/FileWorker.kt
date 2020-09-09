@@ -16,8 +16,7 @@ class FileWorker(appContext: Context, workerParameters: WorkerParameters) :
             val outputDir = File(
                 applicationContext.filesDir, ""
             )
-            var arrays = outputDir.listFiles().sortedBy { it.name.toInt() }.toList().map { it.readBytes() }
-
+            val arrays = outputDir.listFiles()!!.sortedBy { it.name.toInt() }.toList().map { it.readBytes() }
             val joinedArray = arrays.reduce { acc, bytes -> acc + bytes }
             File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName).writeBytes(joinedArray)
             Result.success()

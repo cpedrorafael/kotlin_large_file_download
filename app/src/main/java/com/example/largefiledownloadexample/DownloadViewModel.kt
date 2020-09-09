@@ -1,13 +1,19 @@
 package com.example.largefiledownloadexample
+
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.work.*
+import com.example.largefiledownloadexample.utils.DownloadUtils
+import com.example.largefiledownloadexample.utils.FileUtils
 import com.example.largefiledownloadexample.workers.CleanupWorker
 import com.example.largefiledownloadexample.workers.DownloadWorker
 import com.example.largefiledownloadexample.workers.FileWorker
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
@@ -16,39 +22,45 @@ val FILE_WORKER_TAG = "FILE_WORKER"
 val CLEANUP_WORKER_TAG = "CLEANUP_WORKER"
 private const val chunkSize = 5248820
 
-class DownloadViewModel(application: Application): AndroidViewModel(application) {
+class DownloadViewModel(application: Application) : AndroidViewModel(application) {
 
     private val workManager = WorkManager.getInstance(application)
     internal val outputWorkInfos: LiveData<List<WorkInfo>>
 
     private val _chunkWorkIds = MutableLiveData<List<String>>()
     val chunkWorkIds: LiveData<List<String>>
-    get() = _chunkWorkIds
+        get() = _chunkWorkIds
 
     init {
         outputWorkInfos = workManager.getWorkInfosByTagLiveData(CHUNK_WORKER_TAG)
         _chunkWorkIds.value = listOf<String>()
     }
 
-    private val context = getApplication<Application>().applicationContext
 
-     fun cancelDownload() {
+    fun cancelDownload() {
         workManager.cancelAllWorkByTag(CHUNK_WORKER_TAG)
         workManager.cancelAllWorkByTag(FILE_WORKER_TAG)
-         val cleanupWorker = getCleanupWorker()
-         workManager.enqueueUniqueWork(CLEANUP_WORKER_TAG, ExistingWorkPolicy.REPLACE,cleanupWorker)
+        workManager.pruneWork()
+        val cleanupWorker = getCleanupWorker()
+        workManager.enqueueUniqueWork(CLEANUP_WORKER_TAG, ExistingWorkPolicy.REPLACE, cleanupWorker)
     }
 
     fun startDownload(url: String) {
-        val fileName = URL(url).file
-        val chunkWorkers = getChunkWorkers(url)
-        _chunkWorkIds.value = chunkWorkers.map { it.id.toString() }.toList()
-        val fileWorker = getFileWorker(fileName)
-        val cleanupWorker = getCleanupWorker()
-        workManager.beginWith(chunkWorkers)
-            .then(fileWorker)
-            .then(cleanupWorker)
-            .enqueue()
+        try {
+            val fileName = URL(url).file
+            val chunkWorkers = getChunkWorkers(url)
+            _chunkWorkIds.value = chunkWorkers.map { it.id.toString() }.toList()
+            val fileWorker = getFileWorker(fileName)
+            val cleanupWorker = getCleanupWorker()
+            workManager.pruneWork()
+            workManager.beginWith(chunkWorkers)
+                .then(fileWorker)
+                .then(cleanupWorker)
+                .enqueue()
+        } catch (e: Exception) {
+            Log.e("DownloadViewModel", e.message)
+        }
+
     }
 
     private fun getFileWorker(fileName: String?): OneTimeWorkRequest =
@@ -62,12 +74,13 @@ class DownloadViewModel(application: Application): AndroidViewModel(application)
             .addTag(CLEANUP_WORKER_TAG)
             .build()
 
-    private fun getChunkWorkers(url:String) : List<OneTimeWorkRequest> = runBlocking{
+    private fun getChunkWorkers(url: String): List<OneTimeWorkRequest> = runBlocking {
         val acceptRanges =
             withContext(Dispatchers.IO) {
-                DownloadUtil.getAcceptRanges(url)
+                DownloadUtils.getAcceptRanges(url)
             }
-        val chunks = DownloadUtil.getChunks(acceptRanges.second, chunkSize)
+        if (!acceptRanges.first) return@runBlocking listOf(createChunkWorkRequest(url, Pair(0, 0)))
+        val chunks = FileUtils.getChunks(acceptRanges.second, chunkSize)
         return@runBlocking chunks.map { createChunkWorkRequest(url, Pair(it.first, it.second)) }
     }
 
