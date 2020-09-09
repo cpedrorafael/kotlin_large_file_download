@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Large File Download Example</string>
+    <string name="cancel">Cancel</string>
+</resources>
