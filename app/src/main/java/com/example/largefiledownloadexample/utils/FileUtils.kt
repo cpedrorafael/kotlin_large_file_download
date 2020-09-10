@@ -1,5 +1,8 @@
 package com.example.largefiledownloadexample.utils
 
+import android.os.Environment
+import java.io.File
+
 class FileUtils {
     companion object{
         fun getChunks(value: Int, chunkSize: Int): List<Pair<Int, Int>>{
@@ -10,6 +13,13 @@ class FileUtils {
                 list.add(Pair(first, Math.min(value, i + chunkSize)))
             }
             return list
+        }
+
+        fun createFileAtDownloadsFolder(fileName: String): File {
+            return File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                fileName
+            )
         }
 
     }

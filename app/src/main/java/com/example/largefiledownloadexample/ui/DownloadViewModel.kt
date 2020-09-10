@@ -1,6 +1,10 @@
-package com.example.largefiledownloadexample
+package com.example.largefiledownloadexample.ui
 
 import android.app.Application
+import android.app.DownloadManager
+import android.content.Context.DOWNLOAD_SERVICE
+import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -16,6 +20,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.net.URL
 import java.util.concurrent.TimeUnit
+
 
 val CHUNK_WORKER_TAG = "CHUNK_WORKER"
 val FILE_WORKER_TAG = "FILE_WORKER"
@@ -44,6 +49,10 @@ class DownloadViewModel(application: Application) : AndroidViewModel(application
         val cleanupWorker = getCleanupWorker()
         workManager.enqueueUniqueWork(CLEANUP_WORKER_TAG, ExistingWorkPolicy.REPLACE, cleanupWorker)
     }
+
+    val context = getApplication<Application>().applicationContext
+
+
 
     suspend fun startDownload(url: String) {
         try {

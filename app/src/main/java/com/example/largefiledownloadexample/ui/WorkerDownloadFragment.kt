@@ -1,22 +1,30 @@
-package com.example.largefiledownloadexample
+package com.example.largefiledownloadexample.ui
 
 import android.Manifest
+import android.app.Activity
 import android.app.DownloadManager
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.WorkInfo
+import com.example.largefiledownloadexample.R
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.worker_download_fragment.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 
 private const val REQUEST_CODE_PERMISSIONS = 10
 private val REQUIRED_PERMISSIONS = arrayOf(
@@ -25,20 +33,30 @@ private val REQUIRED_PERMISSIONS = arrayOf(
     Manifest.permission.READ_EXTERNAL_STORAGE
 )
 
-class MainActivity : AppCompatActivity() {
+class WorkerDownloadFragment : Fragment() {
+
+    companion object {
+        fun newInstance() = WorkerDownloadFragment()
+    }
+
     private lateinit var viewModel: DownloadViewModel
     private var isDownloading: Boolean = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        supportActionBar?.hide()
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.worker_download_fragment, container, false)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(DownloadViewModel::class.java)
         if (allPermissionsGranted()) {
             setup()
         } else {
             ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+                activity as Activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
         }
     }
@@ -51,25 +69,26 @@ class MainActivity : AppCompatActivity() {
                 setup()
             } else {
                 Toast.makeText(
-                    this,
+                    context,
                     "Permissions not granted.",
                     Toast.LENGTH_SHORT
                 ).show()
-                finish()
+                 activity?.finish()
             }
         }
     }
 
 
+
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
-            baseContext, it
+            activity!!.baseContext, it
         ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun setup() {
 
-        viewModel.outputWorkInfos.observe(this) { workInfoList ->
+        viewModel.outputWorkInfos.observe(viewLifecycleOwner) { workInfoList ->
             val list = getCurrentWorkInfos(workInfoList)
             updateUI(checkTasksAreRunning(workInfoList))
             val finished = getFinishedTasks(list)
@@ -102,7 +121,7 @@ class MainActivity : AppCompatActivity() {
     private fun onTaskFailed(list: List<WorkInfo>) {
         if (list.any { it.state == WorkInfo.State.CANCELLED }) {
             viewModel.cancelDownload()
-            Toast.makeText(this@MainActivity, getString(R.string.downloadFailed), Toast.LENGTH_LONG)
+            Toast.makeText(context, getString(R.string.downloadFailed), Toast.LENGTH_LONG)
                 .show()
             updateUI()
         }
@@ -141,7 +160,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun finished() {
-        Toast.makeText(this@MainActivity, getString(R.string.downloadSuccess), Toast.LENGTH_LONG)
+        Toast.makeText(context, getString(R.string.downloadSuccess), Toast.LENGTH_LONG)
             .show()
         startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
         updateUI()

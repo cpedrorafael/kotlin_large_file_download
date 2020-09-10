@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/downloadManagerFragment">
+
+    <fragment
+        android:id="@+id/downloadManagerFragment"
+        android:name="com.example.largefiledownloadexample.ui.DownloadManagerFragment"
+        android:label="File Downloader"
+        tools:layout="@layout/download_manager_fragment" />
+    <fragment
+        android:id="@+id/workerDownloadFragment"
+        android:name="com.example.largefiledownloadexample.ui.WorkerDownloadFragment"
+        android:label="File Downloader"
+        tools:layout="@layout/worker_download_fragment" />
+</navigation>

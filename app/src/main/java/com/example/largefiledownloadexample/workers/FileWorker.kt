@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Environment
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.largefiledownloadexample.utils.FileUtils
 import java.io.File
 
 
@@ -18,7 +19,7 @@ class FileWorker(appContext: Context, workerParameters: WorkerParameters) :
             getChunkFileNameList(outputDir, fileNameList)
             removeFolderName(fileNameList)
             fileNameList = orderChunkFiles(fileNameList)
-            val outputFile = createFileAtDownloadsFolder(fileName)
+            val outputFile = FileUtils.createFileAtDownloadsFolder(fileName)
             deleteCurrentFile(outputFile)
             writeToOutputFile(fileNameList, outputFile, outputDir)
             Result.success()
@@ -45,12 +46,7 @@ class FileWorker(appContext: Context, workerParameters: WorkerParameters) :
         outputFile.writeBytes(byteArrayOf(0))
     }
 
-    private fun createFileAtDownloadsFolder(fileName: String): File {
-        return File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            fileName
-        )
-    }
+
 
     private fun orderChunkFiles(fileNameList: MutableList<String>) =
         fileNameList.sortedBy { it.toInt() }.toMutableList()
