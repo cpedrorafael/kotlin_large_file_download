@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 val CHUNK_WORKER_TAG = "CHUNK_WORKER"
 val FILE_WORKER_TAG = "FILE_WORKER"
 val CLEANUP_WORKER_TAG = "CLEANUP_WORKER"
-private const val chunkSize = 100000
+private const val chunkSize = 10000000
 
 class DownloadViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -45,14 +45,14 @@ class DownloadViewModel(application: Application) : AndroidViewModel(application
         workManager.enqueueUniqueWork(CLEANUP_WORKER_TAG, ExistingWorkPolicy.REPLACE, cleanupWorker)
     }
 
-    fun startDownload(url: String) {
+    suspend fun startDownload(url: String) {
         try {
             val fileName = URL(url).file
             val chunkWorkers = getChunkWorkers(url)
             _chunkWorkIds.value = chunkWorkers.map { it.id.toString() }.toList()
             val fileWorker = getFileWorker(fileName)
             val cleanupWorker = getCleanupWorker()
-            workManager.pruneWork()
+            workManager.pruneWork().await()
             workManager.beginWith(chunkWorkers)
                 .then(fileWorker)
                 .then(cleanupWorker)

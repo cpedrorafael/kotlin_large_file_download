@@ -14,6 +14,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.WorkInfo
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private const val REQUEST_CODE_PERMISSIONS = 10
 private val REQUIRED_PERMISSIONS = arrayOf(
@@ -83,8 +86,10 @@ class MainActivity : AppCompatActivity() {
                 updateUI()
                 return@setOnClickListener
             }
-            viewModel.startDownload(urlInput.text.toString())
             updateUI(true)
+            CoroutineScope(Dispatchers.Main).launch {
+                viewModel.startDownload(urlInput.text.toString())
+            }
         }
 
     }
@@ -125,17 +130,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateUI(_isDownloading: Boolean = false) {
         isDownloading = _isDownloading
-        urlInput.visibility = if(isDownloading) View.GONE else View.VISIBLE
-        progressBar.visibility = if(isDownloading) View.VISIBLE  else View.INVISIBLE
+        urlInput.visibility = if (isDownloading) View.GONE else View.VISIBLE
+        progressBar.visibility = if (isDownloading) View.VISIBLE else View.INVISIBLE
         progressBar2.visibility = progressBar.visibility
-        progressText.visibility = if(isDownloading) View.VISIBLE  else View.INVISIBLE
+        progressText.visibility = if (isDownloading) View.VISIBLE else View.INVISIBLE
         if (!isDownloading) progressText.text = "0%"
-        if(!isDownloading) progressBar.progress = 0
-        downloadButton.text = if(isDownloading) getString(R.string.cancel) else getString(R.string.download)
+        if (!isDownloading) progressBar.progress = 0
+        downloadButton.text =
+            if (isDownloading) getString(R.string.cancel) else getString(R.string.download)
     }
 
     private fun finished() {
-        Toast.makeText(this@MainActivity, getString(R.string.downloadSuccess), Toast.LENGTH_LONG).show()
+        Toast.makeText(this@MainActivity, getString(R.string.downloadSuccess), Toast.LENGTH_LONG)
+            .show()
         startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
         updateUI()
     }

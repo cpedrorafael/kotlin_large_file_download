@@ -15,10 +15,10 @@ import java.io.IOException
 class DownloadWorker(appContext: Context, workerParameters: WorkerParameters) :
     CoroutineWorker(appContext, workerParameters) {
 
-
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     override suspend fun doWork(): Result {
         return try {
+            if (isStopped) Result.failure()
             val url = inputData.getString("downloadUrl") ?: return Result.failure()
             val rangeFrom = inputData.getInt("rangeFrom", 0)
             val rangeTo = inputData.getInt("rangeTo", 0)
