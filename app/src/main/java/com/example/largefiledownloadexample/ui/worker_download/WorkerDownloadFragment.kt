@@ -39,38 +39,9 @@ class WorkerDownloadFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(DownloadViewModel::class.java)
-        if (allPermissionsGranted()) {
-            setup()
-        } else {
-            ActivityCompat.requestPermissions(
-                activity as Activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-            )
-        }
+        setup()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>, grantResults: IntArray
-    ) {
-        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (allPermissionsGranted()) {
-                setup()
-            } else {
-                Toast.makeText(
-                    context,
-                    "Permissions not granted.",
-                    Toast.LENGTH_SHORT
-                ).show()
-                activity?.finish()
-            }
-        }
-    }
-
-
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(
-            activity!!.baseContext, it
-        ) == PackageManager.PERMISSION_GRANTED
-    }
 
     private fun setup() {
 
