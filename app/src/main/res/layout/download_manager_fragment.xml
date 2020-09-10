@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.DownloadManagerFragment">
+    tools:context=".ui.download_manager.DownloadManagerFragment">
 
     <EditText
         android:id="@+id/urlInput"
@@ -56,6 +56,7 @@
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/padding_start"
         android:paddingRight="@dimen/padding_start"
+        android:textAlignment="center"
         android:text="@string/download_using_the_default_android_download_manager"
         android:textSize="@dimen/description_text_size"
         app:layout_constraintBottom_toTopOf="@+id/urlInput"
@@ -63,6 +64,7 @@
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:layout_constraintVertical_bias="0.211" />
+        app:layout_constraintVertical_bias="0.211"
+        android:gravity="center_horizontal" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

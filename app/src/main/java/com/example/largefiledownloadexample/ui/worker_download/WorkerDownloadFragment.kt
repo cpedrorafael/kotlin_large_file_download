@@ -1,43 +1,30 @@
-package com.example.largefiledownloadexample.ui
+package com.example.largefiledownloadexample.ui.worker_download
 
-import android.Manifest
 import android.app.Activity
 import android.app.DownloadManager
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.WorkInfo
 import com.example.largefiledownloadexample.R
-import kotlinx.android.synthetic.main.activity_main.*
+import com.example.largefiledownloadexample.utils.REQUEST_CODE_PERMISSIONS
+import com.example.largefiledownloadexample.utils.REQUIRED_PERMISSIONS
+import com.example.largefiledownloadexample.utils.showMessage
 import kotlinx.android.synthetic.main.worker_download_fragment.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-private const val REQUEST_CODE_PERMISSIONS = 10
-private val REQUIRED_PERMISSIONS = arrayOf(
-    Manifest.permission.INTERNET,
-    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-    Manifest.permission.READ_EXTERNAL_STORAGE
-)
-
 class WorkerDownloadFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = WorkerDownloadFragment()
-    }
 
     private lateinit var viewModel: DownloadViewModel
     private var isDownloading: Boolean = false
@@ -73,11 +60,10 @@ class WorkerDownloadFragment : Fragment() {
                     "Permissions not granted.",
                     Toast.LENGTH_SHORT
                 ).show()
-                 activity?.finish()
+                activity?.finish()
             }
         }
     }
-
 
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
@@ -121,8 +107,7 @@ class WorkerDownloadFragment : Fragment() {
     private fun onTaskFailed(list: List<WorkInfo>) {
         if (list.any { it.state == WorkInfo.State.CANCELLED }) {
             viewModel.cancelDownload()
-            Toast.makeText(context, getString(R.string.downloadFailed), Toast.LENGTH_LONG)
-                .show()
+            showMessage(context!!, getString(R.string.downloadFailed))
             updateUI()
         }
     }
@@ -160,8 +145,7 @@ class WorkerDownloadFragment : Fragment() {
     }
 
     private fun finished() {
-        Toast.makeText(context, getString(R.string.downloadSuccess), Toast.LENGTH_LONG)
-            .show()
+        showMessage(context!!, getString(R.string.downloadSuccess))
         startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
         updateUI()
     }

@@ -1,2 +1,2 @@
 # kotlin_large_file_download
-An example of using android worker manager
+An example of downloading a file from the internet using android DownloadManager and WorkManager

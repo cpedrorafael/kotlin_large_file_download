@@ -1,17 +1,12 @@
-package com.example.largefiledownloadexample.ui
+package com.example.largefiledownloadexample.ui.worker_download
 
 import android.app.Application
-import android.app.DownloadManager
-import android.content.Context.DOWNLOAD_SERVICE
-import android.net.Uri
-import android.os.Build
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.work.*
-import com.example.largefiledownloadexample.utils.DownloadUtils
-import com.example.largefiledownloadexample.utils.FileUtils
+import com.example.largefiledownloadexample.utils.*
 import com.example.largefiledownloadexample.workers.CleanupWorker
 import com.example.largefiledownloadexample.workers.DownloadWorker
 import com.example.largefiledownloadexample.workers.FileWorker
@@ -21,11 +16,6 @@ import kotlinx.coroutines.withContext
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
-
-val CHUNK_WORKER_TAG = "CHUNK_WORKER"
-val FILE_WORKER_TAG = "FILE_WORKER"
-val CLEANUP_WORKER_TAG = "CLEANUP_WORKER"
-private const val chunkSize = 10000000
 
 class DownloadViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -41,7 +31,6 @@ class DownloadViewModel(application: Application) : AndroidViewModel(application
         _chunkWorkIds.value = listOf<String>()
     }
 
-
     fun cancelDownload() {
         workManager.cancelAllWorkByTag(CHUNK_WORKER_TAG)
         workManager.cancelAllWorkByTag(FILE_WORKER_TAG)
@@ -49,10 +38,6 @@ class DownloadViewModel(application: Application) : AndroidViewModel(application
         val cleanupWorker = getCleanupWorker()
         workManager.enqueueUniqueWork(CLEANUP_WORKER_TAG, ExistingWorkPolicy.REPLACE, cleanupWorker)
     }
-
-    val context = getApplication<Application>().applicationContext
-
-
 
     suspend fun startDownload(url: String) {
         try {
@@ -89,7 +74,7 @@ class DownloadViewModel(application: Application) : AndroidViewModel(application
                 DownloadUtils.getAcceptRanges(url)
             }
         if (!acceptRanges.first) return@runBlocking listOf(createChunkWorkRequest(url, Pair(0, 0)))
-        val chunks = FileUtils.getChunks(acceptRanges.second, chunkSize)
+        val chunks = FileUtils.getChunks(acceptRanges.second, CHUNK_SIZE)
         return@runBlocking chunks.map { createChunkWorkRequest(url, Pair(it.first, it.second)) }
     }
 

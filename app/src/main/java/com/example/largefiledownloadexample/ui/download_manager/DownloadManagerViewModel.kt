@@ -1,4 +1,4 @@
-package com.example.largefiledownloadexample.ui
+package com.example.largefiledownloadexample.ui.download_manager
 
 import android.app.Application
 import android.app.DownloadManager
@@ -6,7 +6,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import com.example.largefiledownloadexample.utils.FileUtils
 import java.net.URL
 

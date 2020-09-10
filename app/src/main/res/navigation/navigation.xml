@@ -7,12 +7,12 @@
 
     <fragment
         android:id="@+id/downloadManagerFragment"
-        android:name="com.example.largefiledownloadexample.ui.DownloadManagerFragment"
+        android:name="com.example.largefiledownloadexample.ui.download_manager.DownloadManagerFragment"
         android:label="File Downloader"
         tools:layout="@layout/download_manager_fragment" />
     <fragment
         android:id="@+id/workerDownloadFragment"
-        android:name="com.example.largefiledownloadexample.ui.WorkerDownloadFragment"
+        android:name="com.example.largefiledownloadexample.ui.worker_download.WorkerDownloadFragment"
         android:label="File Downloader"
         tools:layout="@layout/worker_download_fragment" />
 </navigation>

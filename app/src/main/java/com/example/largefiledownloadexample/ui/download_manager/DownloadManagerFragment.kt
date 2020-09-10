@@ -1,21 +1,16 @@
-package com.example.largefiledownloadexample.ui
+package com.example.largefiledownloadexample.ui.download_manager
 
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.largefiledownloadexample.R
+import com.example.largefiledownloadexample.utils.showMessage
 import kotlinx.android.synthetic.main.download_manager_fragment.*
 
 class DownloadManagerFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = DownloadManagerFragment()
-    }
 
     private lateinit var viewModel: DownloadManagerViewModel
 
@@ -30,11 +25,14 @@ class DownloadManagerFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(DownloadManagerViewModel::class.java)
         downloadButton.setOnClickListener {
-            if (urlInput.text.isEmpty()) return@setOnClickListener
+            if (checkUrlNotEmpty()) return@setOnClickListener
             viewModel.startDownloadManager(urlInput.text.toString())
-            Toast.makeText(context, getString(R.string.download_started), Toast.LENGTH_LONG)
-                .show()
+            showMessage(context!!, getString(R.string.download_started))
         }
     }
+
+
+
+    private fun checkUrlNotEmpty() = urlInput.text.isEmpty()
 
 }
