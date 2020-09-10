@@ -30,21 +30,20 @@
 
     <Button
         android:id="@+id/downloadButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Download"
+        style="@style/buttonStyle"
+        android:text="@string/download"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/urlInput"
-        app:layout_constraintVertical_bias="0.668" />
+        app:layout_constraintVertical_bias="0.868" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/roboto"
-        android:text="Using Download Manager"
+        android:text="@string/using_download_manager"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/urlInput"
         app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +54,10 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Using the default android download manager"
+        android:paddingLeft="@dimen/padding_start"
+        android:paddingRight="@dimen/padding_start"
+        android:text="@string/download_using_the_default_android_download_manager"
+        android:textSize="@dimen/description_text_size"
         app:layout_constraintBottom_toTopOf="@+id/urlInput"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"

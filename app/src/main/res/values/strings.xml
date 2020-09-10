@@ -9,4 +9,5 @@
     <string name="using_work_manager">Using Work Manager</string>
     <string name="using_work_manager_explanation">Using a combination of workers to download the file in chunks, write it into the Downloads folder, and then cleaning up the temporary files, respectively.</string>
     <string name="download_started">Download started!</string>
+    <string name="download_using_the_default_android_download_manager">Download using the default android download manager</string>
 </resources>

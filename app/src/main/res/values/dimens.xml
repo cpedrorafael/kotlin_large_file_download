@@ -2,4 +2,5 @@
 <resources>
     <dimen name="horizontal_margin">16dp</dimen>
     <dimen name="padding_start">16dp</dimen>
+    <dimen name="description_text_size">18sp</dimen>
 </resources>

@@ -3,8 +3,10 @@
 
     <item
         android:id="@+id/downloadManagerFragment"
+        android:icon="@android:drawable/stat_sys_download"
         android:title="@string/using_download_manager" />
     <item
         android:id="@+id/workerDownloadFragment"
+        android:icon="@android:drawable/stat_sys_download"
         android:title="@string/using_work_manager" />
 </menu>
