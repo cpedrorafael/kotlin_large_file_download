@@ -8,21 +8,68 @@ import java.io.File
 
 
 class FileWorker(appContext: Context, workerParameters: WorkerParameters) :
-    CoroutineWorker(appContext, workerParameters){
+    CoroutineWorker(appContext, workerParameters) {
     override suspend fun doWork(): Result {
         return try {
             var fileName = inputData.getString("fileName") ?: return Result.failure()
-            fileName = fileName.replace("/", "")
-            val outputDir = File(
-                applicationContext.filesDir, ""
-            )
-            val arrays = outputDir.listFiles()!!.sortedBy { it.name.toInt() }.toList().map { it.readBytes() }
-            val joinedArray = arrays.reduce { acc, bytes -> acc + bytes }
-            File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName).writeBytes(joinedArray)
+            fileName = clean(fileName)
+            val outputDir = getOutputFileDir()
+            var fileNameList = mutableListOf<String>()
+            getChunkFileNameList(outputDir, fileNameList)
+            removeFolderName(fileNameList)
+            fileNameList = orderChunkFiles(fileNameList)
+            val outputFile = createFileAtDownloadsFolder(fileName)
+            deleteCurrentFile(outputFile)
+            writeToOutputFile(fileNameList, outputFile, outputDir)
             Result.success()
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Result.failure()
         }
     }
+
+    private fun writeToOutputFile(
+        fileNameList: MutableList<String>,
+        outputFile: File,
+        outputDir: File
+    ) {
+        fileNameList.forEach {
+            outputFile.appendBytes(File(outputDir, it).readBytes())
+        }
+    }
+
+    private fun removeFolderName(fileNameList: MutableList<String>) {
+        fileNameList.removeAt(0)
+    }
+
+    private fun deleteCurrentFile(outputFile: File) {
+        outputFile.writeBytes(byteArrayOf(0))
+    }
+
+    private fun createFileAtDownloadsFolder(fileName: String): File {
+        return File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            fileName
+        )
+    }
+
+    private fun orderChunkFiles(fileNameList: MutableList<String>) =
+        fileNameList.sortedBy { it.toInt() }.toMutableList()
+
+    private fun getChunkFileNameList(
+        outputDir: File,
+        fileNameList: MutableList<String>
+    ) {
+        outputDir.walk().forEach {
+            fileNameList.add(it.name)
+        }
+    }
+
+    private fun getOutputFileDir(): File {
+        return File(
+            applicationContext.filesDir, ""
+        )
+    }
+
+    private fun clean(fileName: String) = fileName.replace("/", "")
 
 }

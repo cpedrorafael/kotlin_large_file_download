@@ -84,9 +84,7 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             viewModel.startDownload(urlInput.text.toString())
-            isDownloading = true
-            progressBar.visibility = View.VISIBLE
-            (it as Button).text = getString(R.string.cancel)
+            updateUI(true)
         }
 
     }
@@ -97,7 +95,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onTaskFailed(list: List<WorkInfo>) {
-        if (list.any { it.state == WorkInfo.State.FAILED }) {
+        if (list.any { it.state == WorkInfo.State.CANCELLED }) {
             viewModel.cancelDownload()
             Toast.makeText(this@MainActivity, getString(R.string.downloadFailed), Toast.LENGTH_LONG)
                 .show()
@@ -129,7 +127,9 @@ class MainActivity : AppCompatActivity() {
         isDownloading = _isDownloading
         urlInput.visibility = if(isDownloading) View.GONE else View.VISIBLE
         progressBar.visibility = if(isDownloading) View.VISIBLE  else View.INVISIBLE
+        progressBar2.visibility = progressBar.visibility
         progressText.visibility = if(isDownloading) View.VISIBLE  else View.INVISIBLE
+        if (!isDownloading) progressText.text = "0%"
         if(!isDownloading) progressBar.progress = 0
         downloadButton.text = if(isDownloading) getString(R.string.cancel) else getString(R.string.download)
     }

@@ -15,16 +15,17 @@
         android:layout_marginEnd="24dp"
         android:layout_marginRight="24dp"
         android:ems="10"
-        android:hint="Insert your file's url here"
-        android:inputType="textWebEditText"
-        android:text="http://ipv4.download.thinkbroadband.com/20MB.zip"
-        android:textSize="12sp"
+        android:textAlignment="center"
+        android:text="http://ipv4.download.thinkbroadband.com/1GB.zip"
+        android:hint="@string/insert_url"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.4" />
+        app:layout_constraintVertical_bias="0.4"
+        android:gravity="center_horizontal" />
 
     <Button
         android:id="@+id/downloadButton"
@@ -59,8 +60,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:textSize="30sp"
+        android:text="0%"
+        android:textColor="@android:color/black"
+        android:textSize="36sp"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
         app:layout_constraintEnd_toEndOf="@+id/progressBar"
-        app:layout_constraintStart_toStartOf="@+id/progressBar" />
+        app:layout_constraintStart_toStartOf="@+id/progressBar"
+        app:layout_constraintTop_toTopOf="@+id/progressBar2" />
+
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/urlInput"
+        app:layout_constraintStart_toEndOf="@+id/progressText"
+        app:layout_constraintTop_toTopOf="@+id/urlInput" />
 </androidx.constraintlayout.widget.ConstraintLayout>

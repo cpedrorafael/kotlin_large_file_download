@@ -10,9 +10,9 @@ class CleanupWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params
 
     override fun doWork(): Result {
         return try {
-            val outputDirectory = File(applicationContext.filesDir, "")
+            val outputDirectory = getOutputDirectory()
             if (outputDirectory.exists()) {
-                val entries = outputDirectory.listFiles()
+                val entries = getChunkFiles(outputDirectory)
                 if (entries != null) {
                     for (entry in entries) {
                         val name = entry.name
@@ -29,4 +29,8 @@ class CleanupWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params
             Result.failure()
         }
     }
+
+    private fun getChunkFiles(outputDirectory: File) = outputDirectory.listFiles()
+
+    private fun getOutputDirectory() = File(applicationContext.filesDir, "")
 }

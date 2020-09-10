@@ -4,4 +4,5 @@
     <string name="download">Download</string>
     <string name="downloadSuccess">The download was completed successfully!</string>
     <string name="downloadFailed">The download could not be completed.</string>
+    <string name="insert_url">Insert your file\'s url here</string>
 </resources>

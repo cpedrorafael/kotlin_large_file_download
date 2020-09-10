@@ -18,29 +18,41 @@ class DownloadWorker(appContext: Context, workerParameters: WorkerParameters) :
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     override suspend fun doWork(): Result {
-        try {
+        return try {
             val url = inputData.getString("downloadUrl") ?: return Result.failure()
             val rangeFrom = inputData.getInt("rangeFrom", 0)
             val rangeTo = inputData.getInt("rangeTo", 0)
 
-            val outputFile = File(
-                applicationContext.filesDir,
-                "$rangeFrom"
-            )
+            val outputFile = createOutputChunkFile(rangeFrom)
 
             if (!outputFile.createNewFile()) {
                 Result.failure(workDataOf("Error" to "File not created"))
             }
-            withContext(Dispatchers.IO) {
-                DownloadUtils.downloadFile(url, outputFile, Pair(rangeFrom, rangeTo))
-            }
 
-           return Result.success()
-        } catch (e: IOException) {
-            return Result.retry()
-        } catch (e: java.lang.Exception) {
-            return Result.failure()
+            downloadChunk(url, outputFile, rangeFrom, rangeTo)
+
+            Result.success()
+        } catch (e: Exception) {
+            Result.retry()
         }
+    }
+
+    private suspend fun downloadChunk(
+        url: String,
+        outputFile: File,
+        rangeFrom: Int,
+        rangeTo: Int
+    ) {
+        withContext(Dispatchers.IO) {
+            DownloadUtils.downloadFile(url, outputFile, Pair(rangeFrom, rangeTo))
+        }
+    }
+
+    private fun createOutputChunkFile(rangeFrom: Int): File {
+        return File(
+            applicationContext.filesDir,
+            "$rangeFrom"
+        )
     }
 }
 

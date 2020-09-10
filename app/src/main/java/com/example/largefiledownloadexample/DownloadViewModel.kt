@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 val CHUNK_WORKER_TAG = "CHUNK_WORKER"
 val FILE_WORKER_TAG = "FILE_WORKER"
 val CLEANUP_WORKER_TAG = "CLEANUP_WORKER"
-private const val chunkSize = 5248820
+private const val chunkSize = 100000
 
 class DownloadViewModel(application: Application) : AndroidViewModel(application) {
 
